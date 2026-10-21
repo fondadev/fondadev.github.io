@@ -1,0 +1,190 @@
+---
+import { getCollection } from 'astro:content';
+import '../styles/global.css';
+import { players, bench, likes, keywords, now, matchLog, otherMatches, trophies, stats, tech, accounts } from '../data/profile';
+
+const works = (await getCollection('works')).sort((a, b) => a.data.order - b.data.order);
+---
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>fondadev | Match Day</title>
+<meta name="description" content="fondadev のポートフォリオ。スクロールで試合が進みます。">
+<meta property="og:title" content="fondadev | Match Day">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://fondadev.github.io/">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Cormorant+Garamond:ital,wght@0,500;1,500&family=DotGothic16&family=Klee+One:wght@600&family=Zen+Maru+Gothic:wght@500;700;900&display=swap">
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+ <symbol id="cat" viewBox="0 0 120 70"><path d="M10 70 Q12 26 34 18 L40 0 L52 16 Q60 14 68 16 L80 0 L86 18 Q108 26 110 70 Z" fill="#4a4258"/><ellipse cx="46" cy="40" rx="6" ry="7" fill="#f6d28f"/><ellipse cx="74" cy="40" rx="6" ry="7" fill="#f6d28f"/><ellipse cx="46" cy="41" rx="2" ry="5" fill="#4a4258"/><ellipse cx="74" cy="41" rx="2" ry="5" fill="#4a4258"/><path d="M56 50 q4 4 8 0" stroke="#f6d28f" stroke-width="2" fill="none" stroke-linecap="round"/></symbol>
+ <symbol id="ball" viewBox="0 0 40 40"><circle cx="20" cy="20" r="18" fill="#fffaf2" stroke="#4a3282" stroke-width="2.4"/><path d="M20 11 l8.5 6.2 -3.2 10 h-10.6 l-3.2 -10z" fill="#6b4fa8"/><path d="M20 11 V3 M28.5 17.2 l7.6 -2.4 M25.3 27.2 l4.6 6.2 M14.7 27.2 l-4.6 6.2 M11.5 17.2 l-7.6 -2.4" stroke="#4a3282" stroke-width="2" fill="none"/></symbol>
+</defs></svg>
+
+<div id="intro" role="dialog" aria-label="オープニング演出">
+  <canvas id="introCanvas"></canvas>
+  <div class="txt"><div class="eyebrow">Welcome to the stadium</div><div class="t">Match Day.</div></div>
+  <div class="count">KICK OFF IN<b id="cd">3</b></div>
+  <svg class="cat" id="introCat"><use href="#cat"/></svg>
+  <button class="skip" id="skip" type="button">SKIP ・ ESC</button>
+</div>
+
+<a class="logo" href="#kickoff">fonda.</a>
+<div class="hud" aria-live="off"><span class="sec" id="hudSec">KICK OFF</span><span class="min" id="hudMin">0'</span></div>
+<div class="touch" aria-hidden="true"><svg class="ball" id="touchBall"><use href="#ball"/></svg></div>
+<div id="cur" aria-hidden="true"><svg><use href="#ball"/></svg></div>
+<canvas id="splat" aria-hidden="true"></canvas>
+
+<main>
+<!-- 01 -->
+<section class="hero" id="kickoff" data-name="KICK OFF">
+  <div class="in">
+    <img class="stroke" id="heroStroke" src="/brush/s-stroke-hero.png" alt="">
+    <h1 id="heroTitle" aria-label="FONDA.DEV"><span class="row" id="row1">FONDA<span class="ch dot" id="heroDot"></span></span><span class="row v" id="row2">DEV</span></h1>
+    <p class="lead" id="heroLead">クラウドと、<span>上流</span>へ。</p>
+    <svg class="arch" viewBox="0 0 900 420" fill="none" stroke="#b3a6c4" stroke-width="1.6" aria-hidden="true"><path d="M40 420 Q450 60 860 420" stroke="#8a6cc4" stroke-width="2.4"/><path d="M90 420 Q450 110 810 420" opacity=".7"/><path d="M140 420 Q450 160 760 420" opacity=".5"/><g opacity=".45"><line x1="200" y1="420" x2="300" y2="190"/><line x1="300" y1="420" x2="370" y2="150"/><line x1="400" y1="420" x2="430" y2="130"/><line x1="500" y1="420" x2="470" y2="130"/><line x1="600" y1="420" x2="530" y2="150"/><line x1="700" y1="420" x2="600" y2="190"/></g></svg>
+    <button class="cat" id="heroCat" type="button" aria-label="猫に話しかける"><svg viewBox="0 0 120 70" width="100%"><use href="#cat"/></svg></button>
+    <div class="bubble" id="bubble">よろしくにゃ</div>
+    <div class="hint" id="hint">SCROLL ↓</div>
+  </div>
+</section>
+
+<!-- 02 -->
+<section class="player bleed" id="player" data-name="PLAYER">
+  <div class="wrap">
+    <div class="sec-head"><div class="eyebrow"><b>02</b> / Player</div><h2>PLAYER</h2></div>
+  </div>
+  <div class="marq" aria-label={`Likes: ${likes.join(', ')}`}>
+    <div class="r" id="mq1">{[...likes, ...likes.slice(0, 2)].map((l) => { const [w, e] = l.split(' '); return <span>{w} <em>{e}</em></span>; })}</div>
+    <div class="r o" id="mq2">{[...keywords, ...keywords, keywords[0]].map((k) => <span>{k}</span>)}</div>
+  </div>
+  <div class="wrap grid">
+    <div class="pcard">
+      <img class="bg" src="/brush/s-stroke-violet.png" alt="">
+      <div class="face card" id="pface">
+        <div class="pos">POSITION<b>CLOUD / PLANNER</b></div>
+        <div class="num">08</div>
+        <svg class="pic" viewBox="0 0 120 70"><use href="#cat"/></svg>
+        <div class="nm"><b>FONDADEV</b><span>CLASS OF 2028</span></div>
+        <div class="stats"><div><b>12</b>INTERNS</div><div><b>6</b>TEAM</div><div><b>∞</b>FOOTBALL</div></div>
+      </div>
+    </div>
+    <div>
+      <p class="motto" id="motto">作る前に、「誰の何を解決するか」。</p>
+      <div class="now"><span class="eyebrow">Now</span>{now.map((n) => <span class="chip">{n}</span>)}</div>
+    </div>
+  </div>
+  <svg class="drip" id="drip" viewBox="0 0 1440 200" preserveAspectRatio="none" aria-hidden="true"><path fill="#3f2a73" d="M0 0H1440V40C1410 40 1400 60 1398 96C1396 130 1372 134 1370 98C1368 60 1350 44 1300 44C1240 44 1236 70 1234 150C1232 190 1204 190 1202 150C1200 80 1190 46 1130 46C1060 46 1052 60 1050 84C1048 108 1028 108 1026 84C1024 54 1000 40 930 40C860 40 852 66 850 120C848 160 822 160 820 120C818 66 800 44 720 44C640 44 632 60 630 78C628 98 608 98 606 78C604 52 580 40 510 40C440 40 430 70 428 170C426 200 396 200 394 170C392 74 380 44 300 44C230 44 222 62 220 92C218 120 196 120 194 92C192 58 170 40 100 40C50 40 42 56 40 72C38 90 18 90 16 72C14 50 8 40 0 40Z"/></svg>
+</section>
+
+<!-- 03 -->
+<section class="formation" id="formation" data-name="FORMATION">
+  <div class="wrap stage" id="formStage">
+    <div>
+      <div class="sec-head"><div class="eyebrow"><b>03</b> / Skills</div><h2>FORMATION</h2></div>
+      <div class="bench"><h3>BENCH</h3>
+        <ul id="benchList">{bench.map(([n, t]) => <li class="card"><i>{n}</i>{t}</li>)}</ul></div>
+    </div>
+    <div class="pitch" id="pitch">
+      <img class="grass" id="grass" src="/brush/s-pitch.png" alt="">
+      <svg class="lines" viewBox="0 0 780 780" fill="none" stroke="#fffaf2" stroke-width="2.4" aria-hidden="true"><rect x="60" y="60" width="660" height="660" rx="3"/><line x1="60" y1="390" x2="720" y2="390"/><circle cx="390" cy="390" r="76"/><rect x="225" y="60" width="330" height="124"/><rect x="225" y="596" width="330" height="124"/></svg>
+      <svg class="arrows" viewBox="0 0 780 780" fill="none" stroke="#fffaf2" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path class="ar" d="M235 400 C 260 300, 330 230, 380 205" stroke-dasharray="8 10"/><path class="arh" d="M362 196 L382 204 L370 222"/>
+        <path class="ar" d="M560 420 C 600 500, 560 560, 490 590" stroke-dasharray="8 10"/><path class="arh" d="M502 574 L488 591 L510 598"/>
+      </svg>
+      <div id="players">{players.map(([x, y, n, t]) => <div class="pl" style={`left:${x / 7.8}%;top:${y / 7.8}%`}><div class="b">{n}</div><div class="n">{t}</div></div>)}</div>
+    </div>
+  </div>
+</section>
+
+<!-- 04 -->
+<section class="matchlog" id="matchlog" data-name="MATCH LOG">
+  <div class="stage" id="mlStage">
+    <div class="wrap" style="width:100%">
+      <div class="sec-head"><div class="eyebrow"><b>04</b> / Career</div><h2>MATCH LOG</h2></div>
+    </div>
+    <div class="mtrack" id="mtrack">
+      {matchLog.map((m) => (
+        <article class:list={['card mcard', { fav: m.fav }]}>
+          {m.fav && <><img class="hl" src="/brush/s-stroke-peach.png" alt="" /><span class="note">推し！</span></>}
+          <div class="d"><small>2026</small>{m.month}</div><div class="who">{m.who}</div><h3>{m.line}</h3>
+          <div class="tags">{m.tags.map((t) => <span class="chip">{t}</span>)}</div>
+        </article>
+      ))}
+    </div>
+    <div class="wrap" style="width:100%">
+      <div class="mprog" id="mprog"><i id="mprogBar"></i><svg id="mprogBall" style="position:absolute;top:2px;left:0;width:26px;height:26px"><use href="#ball"/></svg></div>
+      <div class="others" id="others">{otherMatches.map(([m, n]) => <span class="chip"><b>{m}</b>{n}</span>)}</div>
+    </div>
+  </div>
+</section>
+
+<div class="band" aria-hidden="true"><div class="r" id="band"><span>MATCH DAY</span><i>●</i><span>FONDADEV</span><i>●</i><span>MATCH DAY</span><i>●</i><span>FONDADEV</span><i>●</i><span>MATCH DAY</span></div></div>
+
+<!-- 05 -->
+<section class="wrap pad" id="trophies" data-name="TROPHIES">
+  <div class="sec-head"><div class="eyebrow"><b>05</b> / Licenses</div><h2>TROPHIES</h2></div>
+  <div class="shelf" id="shelf">
+    {trophies.map(({ label, name }) => {
+      const got = label === 'GET';
+      return (
+        <div class:list={['tro', got ? 'got' : 'aim']}>
+          {got && <img class="dab" src="/brush/s-dab.png" alt="" />}
+          <svg viewBox="0 0 140 160" fill={got ? '#fffaf2' : 'none'} stroke={got ? '#4a3282' : '#b3a6c4'} stroke-width="3" stroke-dasharray={got ? undefined : '8 8'} stroke-linejoin="round" aria-hidden="true"><path d="M35 12 h70 v40 a35 35 0 0 1 -70 0z"/><path d="M35 24 h-18 a16 16 0 0 0 18 26 M105 24 h18 a16 16 0 0 1 -18 26"/><path d="M62 88 h16 v24 h-16z"/><path d="M40 112 h60 l6 22 h-72z"/></svg>
+          <div class="eyebrow">{label}</div><h3>{name}</h3>
+        </div>
+      );
+    })}
+  </div>
+</section>
+
+<!-- 06 -->
+<section class="wrap pad" id="highlights" data-name="HIGHLIGHTS">
+  <div class="sec-head"><div class="eyebrow"><b>06</b> / Works</div><h2>HIGHLIGHTS</h2></div>
+  <div class="hgrid" id="hgrid">
+    {works.map((w, i) => {
+      const Tag = w.data.url ? 'a' : 'article';
+      return (
+        <Tag class="card hcard" href={w.data.url} target={w.data.url ? '_blank' : undefined} rel={w.data.url ? 'noopener' : undefined}>
+          <div class="thumb">{i === 0 ? <img src="/brush/s-stroke-small.png" alt="" /> : String(i).padStart(2, '0')}</div>
+          <div class="k">{w.data.kind}</div><h3>{w.data.title}</h3>
+          {w.data.tags.length > 0 && <div class="tags">{w.data.tags.map((t) => <span class="chip">{t}</span>)}</div>}
+        </Tag>
+      );
+    })}
+    <article class="card hcard next"><div class="thumb">vs ?</div><div class="k">COMING SOON</div><h3>NEXT MATCH</h3></article>
+  </div>
+</section>
+
+<!-- 07 -->
+<section class="wrap pad" id="postmatch" data-name="POST-MATCH">
+  <div class="sec-head"><div class="eyebrow"><b>07</b> / Making of</div><h2>POST-MATCH</h2></div>
+  <div class="stats4" id="stats4">{stats.map((s) => <div class="stat"><b data-to={s.to} data-suf={s.suffix}>0</b><span>{s.label}</span></div>)}</div>
+  <div class="pm2">
+    <div class="tech">{tech.map((t) => <span class="chip">{t}</span>)}</div>
+    <div class="card gh"><div class="eyebrow">GitHub ・ @fondadev</div><div class="grassgrid" id="grassgrid"></div></div>
+  </div>
+</section>
+
+<!-- 08 -->
+<section class="ft" id="fulltime" data-name="FULL TIME">
+  <canvas id="ftCanvas"></canvas>
+  <div class="eyebrow">08 / Full time</div>
+  <h2>Thanks for watching.</h2>
+  <div class="board">FULL TIME<b>90'</b></div>
+  <div class="links">{accounts.map((a) => <a class="card mag" href={a.url} target="_blank" rel="noopener"><b>{a.name}</b><span>{a.handle}</span></a>)}</div>
+  <svg class="cat" viewBox="0 0 120 70"><use href="#cat"/></svg>
+  <div class="note catnote">またきてにゃ</div>
+</section>
+</main>
+
+<script>
+import '../scripts/main.js';
+</script>
+</body>
+</html>
