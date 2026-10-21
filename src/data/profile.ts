@@ -12,12 +12,12 @@ export const likes = ['FOOTBALL ⚽', 'CATS 🐈', 'WRESTLING 🤼', 'BASEBALL �
 export const keywords = ['STADIUMS', 'CLOUD', 'TEAMWORK'];
 export const now = ['6人でチーム開発', '応用情報', 'AWS SAA'];
 
-// Who I am, shown first in PLAYER. Set age to a number to show it; null hides the row.
+// Who I am, shown first in PLAYER. A fact with v: null is hidden.
 export const profile = {
   intro: 'サイバー大学で、クラウドとWebを学んでいる大学生です。',
   facts: [
     { k: 'STATUS', v: '大学生' },
-    { k: 'AGE', v: null as string | null },
+    { k: 'AGE', v: '21歳' as string | null },
     { k: 'SCHOOL', v: 'サイバー大学' },
     { k: 'GRAD', v: '2028.03 卒業予定' },
     { k: 'FROM', v: '香川' },
@@ -27,7 +27,6 @@ export const profile = {
 // Career timeline (MATCH LOG): year, month, title, one line, highlighted
 export const career: { year: string; month?: string; title: string; line: string; tags: string[]; fav?: boolean }[] = [
   { year: '2024', month: '04', title: 'サイバー大学 入学', line: 'IT・プログラミング・クラウドを学びはじめる', tags: ['大学'] },
-  { year: '2026', title: '資格を取得', line: 'AWS CLF ・ 基本情報技術者', tags: ['AWS', '国家試験'] },
   { year: '2026', title: '6人でチーム開発', line: '機能整理と文書化を担当', tags: ['チーム開発'], fav: true },
   { year: 'NOW', title: '次の資格に挑戦中', line: '応用情報技術者 ・ AWS SAA', tags: ['勉強中'] },
   { year: '2028', month: '03', title: '卒業予定', line: 'クラウドと上流工程の仕事へ', tags: ['目標'] },
