@@ -74,7 +74,13 @@ if(!REDUCE && Lenis){
   gsap.ticker.add(t => lenis.raf(t*1000));
   gsap.ticker.lagSmoothing(0);
 }
-document.querySelectorAll('a[href^="#"]').forEach(a => a.addEventListener('click', e => { const t=document.querySelector(a.getAttribute('href')); if(!t) return; e.preventDefault(); lenis ? lenis.scrollTo(t) : t.scrollIntoView(); }));
+// menu: jump straight to a section
+const menu = $('#menu'), hudBtn = $('#hudBtn');
+const setMenu = open => { menu.hidden = !open; hudBtn.setAttribute('aria-expanded', String(open)); hudBtn.setAttribute('aria-label', open ? '目次を閉じる' : '目次を開く'); if(open) menu.querySelector('a').focus(); };
+hudBtn.addEventListener('click', () => setMenu(menu.hidden));
+addEventListener('keydown', e => { if(e.key === 'Escape' && !menu.hidden){ setMenu(false); hudBtn.focus(); } });
+addEventListener('pointerdown', e => { if(!menu.hidden && !menu.contains(e.target) && !hudBtn.contains(e.target)) setMenu(false); });
+document.querySelectorAll('a[href^="#"]').forEach(a => a.addEventListener('click', e => { const t=document.querySelector(a.getAttribute('href')); if(!t) return; e.preventDefault(); setMenu(false); lenis ? lenis.scrollTo(t, {duration:1.4}) : t.scrollIntoView(); }));
 
 /* ---------------- intro ---------------- */
 const intro = $('#intro'), cvs = $('#introCanvas'), ctx = cvs.getContext('2d');

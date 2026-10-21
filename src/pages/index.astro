@@ -1,7 +1,10 @@
 ---
 import { getCollection } from 'astro:content';
 import '../styles/global.css';
-import { players, bench, likes, keywords, now, matchLog, otherMatches, trophies, stats, tech, accounts } from '../data/profile';
+import { players, bench, likes, keywords, now, profile, career, trophies, stats, tech, accounts, sections } from '../data/profile';
+
+const facts = profile.facts.filter((f) => f.v);
+const ja = Object.fromEntries(sections.map((s) => [s.id, s.ja]));
 
 const works = (await getCollection('works')).sort((a, b) => a.data.order - b.data.order);
 ---
@@ -35,7 +38,11 @@ const works = (await getCollection('works')).sort((a, b) => a.data.order - b.dat
 </div>
 
 <a class="logo" href="#kickoff">fonda.</a>
-<div class="hud" aria-live="off"><span class="sec" id="hudSec">KICK OFF</span><span class="min" id="hudMin">0'</span></div>
+<button class="hud" id="hudBtn" type="button" aria-expanded="false" aria-controls="menu" aria-label="目次を開く"><span class="sec" id="hudSec">KICK OFF</span><span class="min" id="hudMin">0'</span><span class="mi" aria-hidden="true"><i></i><i></i><i></i></span></button>
+<nav class="menu" id="menu" aria-label="目次" hidden>
+  <div class="eyebrow">Jump to</div>
+  <ol>{sections.map((s) => <li><a href={`#${s.id}`}><b>{s.no}</b><span>{s.en}</span><small>{s.ja}</small></a></li>)}</ol>
+</nav>
 <div class="touch" aria-hidden="true"><svg class="ball" id="touchBall"><use href="#ball"/></svg></div>
 <div id="cur" aria-hidden="true"><svg><use href="#ball"/></svg></div>
 <canvas id="splat" aria-hidden="true"></canvas>
@@ -57,7 +64,7 @@ const works = (await getCollection('works')).sort((a, b) => a.data.order - b.dat
 <!-- 02 -->
 <section class="player bleed" id="player" data-name="PLAYER">
   <div class="wrap">
-    <div class="sec-head"><div class="eyebrow"><b>02</b> / Player</div><h2>PLAYER</h2></div>
+    <div class="sec-head"><div class="eyebrow"><b>02</b> / {ja.player}</div><h2>PLAYER</h2></div>
   </div>
   <div class="marq" aria-label={`Likes: ${likes.join(', ')}`}>
     <div class="r" id="mq1">{[...likes, ...likes.slice(0, 2)].map((l) => { const [w, e] = l.split(' '); return <span>{w} <em>{e}</em></span>; })}</div>
@@ -71,10 +78,12 @@ const works = (await getCollection('works')).sort((a, b) => a.data.order - b.dat
         <div class="num">08</div>
         <svg class="pic" viewBox="0 0 120 70"><use href="#cat"/></svg>
         <div class="nm"><b>FONDADEV</b><span>CLASS OF 2028</span></div>
-        <div class="stats"><div><b>12</b>INTERNS</div><div><b>6</b>TEAM</div><div><b>∞</b>FOOTBALL</div></div>
+        <div class="stats"><div><b>{trophies.filter((t) => t.label === 'GET').length}</b>LICENSES</div><div><b>6</b>TEAM</div><div><b>∞</b>FOOTBALL</div></div>
       </div>
     </div>
     <div>
+      <p class="intro">{profile.intro}</p>
+      <dl class="facts">{facts.map((f) => <div><dt>{f.k}</dt><dd>{f.v}</dd></div>)}</dl>
       <p class="motto" id="motto">作る前に、「誰の何を解決するか」。</p>
       <div class="now"><span class="eyebrow">Now</span>{now.map((n) => <span class="chip">{n}</span>)}</div>
     </div>
@@ -86,7 +95,7 @@ const works = (await getCollection('works')).sort((a, b) => a.data.order - b.dat
 <section class="formation" id="formation" data-name="FORMATION">
   <div class="wrap stage" id="formStage">
     <div>
-      <div class="sec-head"><div class="eyebrow"><b>03</b> / Skills</div><h2>FORMATION</h2></div>
+      <div class="sec-head"><div class="eyebrow"><b>03</b> / {ja.formation}</div><h2>FORMATION</h2></div>
       <div class="bench"><h3>BENCH</h3>
         <ul id="benchList">{bench.map(([n, t]) => <li class="card"><i>{n}</i>{t}</li>)}</ul></div>
     </div>
@@ -106,20 +115,19 @@ const works = (await getCollection('works')).sort((a, b) => a.data.order - b.dat
 <section class="matchlog" id="matchlog" data-name="MATCH LOG">
   <div class="stage" id="mlStage">
     <div class="wrap" style="width:100%">
-      <div class="sec-head"><div class="eyebrow"><b>04</b> / Career</div><h2>MATCH LOG</h2></div>
+      <div class="sec-head"><div class="eyebrow"><b>04</b> / {ja.matchlog}</div><h2>MATCH LOG</h2></div>
     </div>
     <div class="mtrack" id="mtrack">
-      {matchLog.map((m) => (
-        <article class:list={['card mcard', { fav: m.fav }]}>
-          {m.fav && <><img class="hl" src="/brush/s-stroke-peach.png" alt="" /><span class="note">推し！</span></>}
-          <div class="d"><small>2026</small>{m.month}</div><div class="who">{m.who}</div><h3>{m.line}</h3>
-          <div class="tags">{m.tags.map((t) => <span class="chip">{t}</span>)}</div>
+      {career.map((c) => (
+        <article class:list={['card mcard', { fav: c.fav }]}>
+          {c.fav && <><img class="hl" src="/brush/s-stroke-peach.png" alt="" /><span class="note">推し！</span></>}
+          <div class="d">{c.month ? <><small>{c.year}</small>{c.month}</> : c.year}</div><div class="who">{c.title}</div><h3>{c.line}</h3>
+          <div class="tags">{c.tags.map((t) => <span class="chip">{t}</span>)}</div>
         </article>
       ))}
     </div>
     <div class="wrap" style="width:100%">
       <div class="mprog" id="mprog"><i id="mprogBar"></i><svg id="mprogBall" style="position:absolute;top:2px;left:0;width:26px;height:26px"><use href="#ball"/></svg></div>
-      <div class="others" id="others">{otherMatches.map(([m, n]) => <span class="chip"><b>{m}</b>{n}</span>)}</div>
     </div>
   </div>
 </section>
@@ -128,7 +136,7 @@ const works = (await getCollection('works')).sort((a, b) => a.data.order - b.dat
 
 <!-- 05 -->
 <section class="wrap pad" id="trophies" data-name="TROPHIES">
-  <div class="sec-head"><div class="eyebrow"><b>05</b> / Licenses</div><h2>TROPHIES</h2></div>
+  <div class="sec-head"><div class="eyebrow"><b>05</b> / {ja.trophies}</div><h2>TROPHIES</h2></div>
   <div class="shelf" id="shelf">
     {trophies.map(({ label, name }) => {
       const got = label === 'GET';
@@ -145,7 +153,7 @@ const works = (await getCollection('works')).sort((a, b) => a.data.order - b.dat
 
 <!-- 06 -->
 <section class="wrap pad" id="highlights" data-name="HIGHLIGHTS">
-  <div class="sec-head"><div class="eyebrow"><b>06</b> / Works</div><h2>HIGHLIGHTS</h2></div>
+  <div class="sec-head"><div class="eyebrow"><b>06</b> / {ja.highlights}</div><h2>HIGHLIGHTS</h2></div>
   <div class="hgrid" id="hgrid">
     {works.map((w, i) => {
       const Tag = w.data.url ? 'a' : 'article';
@@ -163,7 +171,7 @@ const works = (await getCollection('works')).sort((a, b) => a.data.order - b.dat
 
 <!-- 07 -->
 <section class="wrap pad" id="postmatch" data-name="POST-MATCH">
-  <div class="sec-head"><div class="eyebrow"><b>07</b> / Making of</div><h2>POST-MATCH</h2></div>
+  <div class="sec-head"><div class="eyebrow"><b>07</b> / {ja.postmatch}</div><h2>POST-MATCH</h2></div>
   <div class="stats4" id="stats4">{stats.map((s) => <div class="stat"><b data-to={s.to} data-suf={s.suffix}>0</b><span>{s.label}</span></div>)}</div>
   <div class="pm2">
     <div class="tech">{tech.map((t) => <span class="chip">{t}</span>)}</div>
@@ -174,7 +182,7 @@ const works = (await getCollection('works')).sort((a, b) => a.data.order - b.dat
 <!-- 08 -->
 <section class="ft" id="fulltime" data-name="FULL TIME">
   <canvas id="ftCanvas"></canvas>
-  <div class="eyebrow">08 / Full time</div>
+  <div class="eyebrow"><b>08</b> / {ja.fulltime}</div>
   <h2>Thanks for watching.</h2>
   <div class="board">FULL TIME<b>90'</b></div>
   <div class="links">{accounts.map((a) => <a class="card mag" href={a.url} target="_blank" rel="noopener"><b>{a.name}</b><span>{a.handle}</span></a>)}</div>
